@@ -107,28 +107,28 @@ int main(void)
 
 
     //-------------------------------------------------------
-    char talkers_ip[100];
-    strcpy(talkers_ip, inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s));
-    if ((rv = getaddrinfo(talkers_ip, MYPORT, &hints, &servinfo)) != 0) {
-		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-		return 1;
-	}
-
-    // loop through all the results and make a socket
-	for(p = servinfo; p != NULL; p = p->ai_next) {
-		if ((sockfd = socket(p->ai_family, p->ai_socktype,
-				p->ai_protocol)) == -1) {
-			perror("listener: socket");
-			continue;
-		}
-
-		break;
-	}
-
-	if (p == NULL) {
-		fprintf(stderr, "listener: failed to create socket\n");
-		return 2;
-	}
+    // char talkers_ip[100];
+    // strcpy(talkers_ip, inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s));
+    // if ((rv = getaddrinfo(talkers_ip, MYPORT, &hints, &servinfo)) != 0) {
+	// 	fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+	// 	return 1;
+	// }
+    //
+    // // loop through all the results and make a socket
+	// for(p = servinfo; p != NULL; p = p->ai_next) {
+	// 	if ((sockfd = socket(p->ai_family, p->ai_socktype,
+	// 			p->ai_protocol)) == -1) {
+	// 		perror("listener: socket");
+	// 		continue;
+	// 	}
+    //
+	// 	break;
+	// }
+    //
+	// if (p == NULL) {
+	// 	fprintf(stderr, "listener: failed to create socket\n");
+	// 	return 2;
+	// }
 
     buf[numbytes-1] = '@';
     // printf("p->ai_addr: %s\n", p->ai_addr);
