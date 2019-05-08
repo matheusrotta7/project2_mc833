@@ -14,6 +14,20 @@
 #include <netdb.h>
 
 #define SERVERPORT "4950"	// the port users will be connecting to
+#define MYPORT "4951"	// the port users will be connecting to
+#define MAXBUFLEN 100
+
+// get sockaddr, IPv4 or IPv6:
+void *get_in_addr(struct sockaddr *sa)
+{
+	if (sa->sa_family == AF_INET) {
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	}
+
+	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +35,11 @@ int main(int argc, char *argv[])
 	struct addrinfo hints, *servinfo, *p;
 	int rv;
 	int numbytes;
+    struct sockaddr_storage their_addr;
+	char buf[MAXBUFLEN];
+	socklen_t addr_len;
+    char s[INET6_ADDRSTRLEN];
+
 
 	if (argc != 3) {
 		fprintf(stderr,"usage: talker hostname message\n");
@@ -57,10 +76,39 @@ int main(int argc, char *argv[])
 		perror("talker: sendto");
 		exit(1);
 	}
+    printf("talker: sent %d bytes to %s\tfirst\n", numbytes, argv[1]);
 
-	freeaddrinfo(servinfo);
+    //---------------------------------------------------------------
 
-	printf("talker: sent %d bytes to %s\n", numbytes, argv[1]);
+
+
+    if ((numbytes = sendto(sockfd, argv[2], strlen(argv[2]), 0,
+			 p->ai_addr, p->ai_addrlen)) == -1) {
+		perror("talker: sendto");
+		exit(1);
+	}
+
+    printf("talker: sent %d bytes to %s\tsecond\n", numbytes, argv[1]);
+
+    //-----------------------------------------------------------------
+
+    addr_len = sizeof their_addr;
+	if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
+		(struct sockaddr *)&their_addr, &addr_len)) == -1) {
+		perror("recvfrom");
+		exit(1);
+	}
+
+    printf("listener: got packet from %s\n",
+		inet_ntop(their_addr.ss_family,
+			get_in_addr((struct sockaddr *)&their_addr),
+			s, sizeof s));
+	printf("listener: packet is %d bytes long\n", numbytes);
+	buf[numbytes] = '\0';
+	printf("listener: packet contains \"%s\"\n", buf);
+
+    //-------------------------------------------------------------------------
+    freeaddrinfo(servinfo);
 	close(sockfd);
 
 	return 0;

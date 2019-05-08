@@ -14,6 +14,7 @@
 #include <netdb.h>
 
 #define MYPORT "4950"	// the port users will be connecting to
+#define SERVERPORT "4951"
 
 #define MAXBUFLEN 100
 
@@ -70,7 +71,6 @@ int main(void)
 		return 2;
 	}
 
-	freeaddrinfo(servinfo);
 
 	printf("listener: waiting to recvfrom...\n");
 
@@ -89,6 +89,56 @@ int main(void)
 	buf[numbytes] = '\0';
 	printf("listener: packet contains \"%s\"\n", buf);
 
+    //------------------------------------------------------
+
+    if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
+		(struct sockaddr *)&their_addr, &addr_len)) == -1) {
+		perror("recvfrom");
+		exit(1);
+	}
+
+	printf("listener: got packet from %s\n",
+		inet_ntop(their_addr.ss_family,
+			get_in_addr((struct sockaddr *)&their_addr),
+			s, sizeof s));
+	printf("listener: packet is %d bytes long\n", numbytes);
+	buf[numbytes] = '\0';
+	printf("listener: packet contains \"%s\"\n", buf);
+
+
+    //-------------------------------------------------------
+    char talkers_ip[100];
+    strcpy(talkers_ip, inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s));
+    if ((rv = getaddrinfo(talkers_ip, MYPORT, &hints, &servinfo)) != 0) {
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+		return 1;
+	}
+
+    // loop through all the results and make a socket
+	for(p = servinfo; p != NULL; p = p->ai_next) {
+		if ((sockfd = socket(p->ai_family, p->ai_socktype,
+				p->ai_protocol)) == -1) {
+			perror("listener: socket");
+			continue;
+		}
+
+		break;
+	}
+
+	if (p == NULL) {
+		fprintf(stderr, "listener: failed to create socket\n");
+		return 2;
+	}
+
+    buf[numbytes-1] = '@';
+    // printf("p->ai_addr: %s\n", p->ai_addr);
+    if ((numbytes = sendto(sockfd, buf, strlen(buf), 0,
+			 (struct sockaddr *)&their_addr, addr_len)) == -1) {
+		perror("listener: sendto");
+		exit(1);
+	}
+
+    freeaddrinfo(servinfo);
 	close(sockfd);
 
 	return 0;
