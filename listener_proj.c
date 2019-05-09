@@ -17,6 +17,7 @@
 #define SERVERPORT "4951"
 
 #define MAXBUFLEN 1000
+#define PICBUFFER 500
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -123,7 +124,7 @@ int main(void)
                response[cur_ind++] = next;
 
            }
-           email[i] = '\0'; //I put -1 because there was a space char after the email, causing an off by one mistake
+           email[i] = '\0';
            if (strcmp(email, buf) == 0) {
                while (fscanf(fp, "%c%c", &c1, &c2) != EOF) {
 
@@ -143,43 +144,118 @@ int main(void)
    respond_to_client_8:
    response[cur_ind++] = '\0';
 
-   int len = strlen(response);
-   
+   // int len = strlen(response);
+   //response is all the user's info
 
-   fclose(fp);
    if ((numbytes = sendto(sockfd, response, strlen(response), 0,
    		 (struct sockaddr *)&their_addr, addr_len)) == -1) {
    	perror("listener: sendto");
    	exit(1);
    }
 
-    // //------------------------------------------------------
-    //
-    // if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
-	// 	(struct sockaddr *)&their_addr, &addr_len)) == -1) {
-	// 	perror("recvfrom");
-	// 	exit(1);
-	// }
-    //
-	// printf("listener: got packet from %s\n",
-	// 	inet_ntop(their_addr.ss_family,
-	// 		get_in_addr((struct sockaddr *)&their_addr),
-	// 		s, sizeof s));
-	// printf("listener: packet is %d bytes long\n", numbytes);
-	// buf[numbytes] = '\0';
-	// printf("listener: packet contains \"%s\"\n", buf);
-    //
-    //
-    // //-------------------------------------------------------
-    //
-    //
-    // buf[numbytes-1] = '@';
-    // // printf("p->ai_addr: %s\n", p->ai_addr);
-    // if ((numbytes = sendto(sockfd, buf, strlen(buf), 0,
-	// 		 (struct sockaddr *)&their_addr, addr_len)) == -1) {
-	// 	perror("listener: sendto");
-	// 	exit(1);
-	// }
+   /*********************BEGIN SEND PICTURE LOGIC*************************/
+   fclose(fp);
+   fopen("data.txt", "r");
+   char picname[200];
+   while (fscanf(fp, "%s", aux) != EOF) {
+      // response[0] = '\0'; //resetting reponse
+      if (strcmp(aux, "Email:") == 0) {
+
+          int i = 0;
+          char next;
+          fscanf(fp, "%c", &next); //get preceding blank space
+          // response[cur_ind++] = next;
+          fscanf(fp, "%c", &next); //this gets first char
+
+          // response[cur_ind++] = next;
+
+          while (next != '\n') {
+              email[i++] = next;
+              fscanf(fp, "%c", &next);
+              // response[cur_ind++] = next;
+          }
+          email[i] = '\0';
+          printf("%s\n", email);
+
+          if (strcmp(email, buf) == 0) { //if it is the email we are looking for
+              while (fscanf(fp, "%s", aux) != EOF) {
+                  printf("%s\n", aux);
+                  if (strcmp(aux, "Foto:") == 0) {
+                      printf("----I ENTERED THE FOTO: CONDITION----\n");
+                      fscanf(fp, "%s", picname); //save picture's name
+                      goto leave_loops;
+                  }
+              }
+          }
+      }
+  }
+  int len;
+  leave_loops:
+  len = strlen(picname);
+  printf("picname: %s\n", picname);
+  printf("LEN OF FILE NAME%d\n", len);
+  fclose(fp);
+
+  if ((numbytes = sendto(sockfd, picname, len, 0,
+        (struct sockaddr *)&their_addr, addr_len)) == -1) {
+   perror("listener: sendto");
+   exit(1);
+  }
+
+  FILE* jpg_fp = fopen(picname, "rb");
+  char response_pic[PICBUFFER+1];
+  // int cur_ind = 0;
+  // int j;
+  // int k;
+  // int len;
+  // char next;
+
+
+
+  // obtain file size:
+  size_t file_size;
+  fseek (jpg_fp , 0 , SEEK_END);
+  file_size = ftell (jpg_fp);
+  rewind (jpg_fp);
+
+
+  int num_of_it = file_size/PICBUFFER + ((file_size%PICBUFFER) != 0);
+  printf("NUM_OF_IT: %d\n", num_of_it);
+  // response[0] = (char) (num_of_it+48);
+  // response[1] = '\0';
+  sprintf(response_pic, "%d", num_of_it);
+  printf("NUM_OF_IT (response): %s\n", response_pic);
+
+  len = strlen(response_pic);
+  //send num_of_it to client
+  if ((numbytes = sendto(sockfd, response_pic, len, 0,
+        (struct sockaddr *)&their_addr, addr_len)) == -1) {
+   perror("listener: sendto");
+   exit(1);
+  }
+  int j;
+  for (j = 0; j < num_of_it; j++) {
+      printf("iteration no.: %d\n", j);
+      // cur_ind = 0;
+      size_t result;
+      unsigned char rp[PICBUFFER+1];
+      result = fread (rp, 1, PICBUFFER, jpg_fp);
+
+      printf("result size: %lu\n", result);
+
+      //send 500 size chunk
+      if ((numbytes = sendto(sockfd, rp, result, 0,
+      		 (struct sockaddr *)&their_addr, addr_len)) == -1) {
+      	perror("listener: sendto");
+      	exit(1);
+      }
+      // system("sleep 0.3");
+      printf("NUMBYTES: %d\n", numbytes);
+
+
+  }
+
+   /*********************END SEND PICTURE LOGIC*************************/
 
     freeaddrinfo(servinfo);
 	close(sockfd);

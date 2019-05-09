@@ -82,13 +82,6 @@ int main(int argc, char *argv[])
 
 
 
-    // if ((numbytes = sendto(sockfd, argv[2], strlen(argv[2]), 0,
-	// 		 p->ai_addr, p->ai_addrlen)) == -1) {
-	// 	perror("talker: sendto");
-	// 	exit(1);
-	// }
-    //
-    // printf("talker: sent %d bytes to %s\tsecond\n", numbytes, argv[1]);
 
     //-----------------------------------------------------------------
 
@@ -108,6 +101,54 @@ int main(int argc, char *argv[])
 	printf("listener: packet contains \"%s\"\n", buf);
 
     //-------------------------------------------------------------------------
+    /*********************BEGIN RECEIVE PICTURE LOGIC*************************/
+    // addr_len = sizeof their_addr;
+	if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
+		(struct sockaddr *)&their_addr, &addr_len)) == -1) {
+		perror("recvfrom");
+		exit(1);
+	}
+    buf[numbytes] = '\0';
+    printf("NUMBYTES RECEIVED FOR FILENAME: %d\n", numbytes);
+    // printf("%s\n", buf);
+    // buf[0] = '@';
+
+    printf("NAME OF CURRENT FILE: %s\n", buf);
+
+    //then start logic to receive jpg:
+    FILE* fp;
+    fp = fopen(buf, "wb");
+
+    //receive num_of_it for this current photo
+    if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
+		(struct sockaddr *)&their_addr, &addr_len)) == -1) {
+		perror("recvfrom");
+		exit(1);
+	}
+
+    buf[numbytes] = '\0';
+    printf("BUFFER OF NUM_OF_IT RECEIVED FROM SERVER %s\n", buf);
+    int num_of_it;
+    sscanf(buf, "%d", &num_of_it);
+    int k;
+    printf("num_of_it on client: %d\n", num_of_it);
+
+    for (k = 0; k < num_of_it; k++) {
+        if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
+    		(struct sockaddr *)&their_addr, &addr_len)) == -1) {
+    		perror("recvfrom");
+    		exit(1);
+    	}
+
+        buf[numbytes] = '\0';
+        printf("numbytes in iteration %d: %d\n", k, numbytes);
+        int l;
+        // int len = strlen(buf);
+        fwrite(buf, 1, numbytes, fp);
+    }
+    fclose(fp);
+    /*********************END RECEIVE PICTURE LOGIC*************************/
+
     freeaddrinfo(servinfo);
 	close(sockfd);
 
