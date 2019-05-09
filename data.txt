@@ -1,0 +1,51 @@
+Email: matheusrotta7@gmail.com
+Nome Completo: Matheus Rotta Alves
+Foto: matheus.jpg
+Residência: Campinas
+Formação Acadêmica: Engenharia da Computação (AA)
+Habilidades: Machine Learning, Computer Security
+Experiência: (1) Estágio de I.C. em Cepetro na área de ML
+
+
+Email: gps_016@gmail.com
+Nome Completo: Gabriel Pellegrino da Silva
+Foto: gabriel.jpg
+Residência: Campinas
+Formação Acadêmica: Engenharia da Computação (AA)
+Habilidades: HPC, Algoritmos
+Experiência: (1) Estágio na Semantix em ML
+
+
+Email: roger@unicamp.br
+Nome Completo: roger roger
+Foto: roger.jpg
+Residência: sjc
+Formação Acadêmica: Letras
+Habilidades: Sonetista, Tradução Juramentada, Romancista, Linguística
+Experiência: (1) Estágio no MPF trabalhando com tradução juramentada
+
+
+Email: carlos@null
+Nome Completo: carlos almeida
+Foto: carlos.jpg
+Residência: itu
+Formação Acadêmica: Engenharia Elétrica
+Habilidades: VHDL, Projetista de Fontes, Sis
+Experiência: (1) Estágio na Eldorado trabalhando com Processamento de Sinais
+Email: 
+Nome Completo: 
+Residência: 
+Formação Acadêmica: 
+Habilidades: 
+Experiência: (1) 
+
+
+Email: kiki@gmail.com
+Nome Completo: Alessandra Ayumi Simasaki
+Foto: kiki.jpg
+Residência: Pirassununga
+Formação Acadêmica: Medicina Veterinária
+Habilidades: Many Skills
+Experiência: (1) Much experience
+
+
