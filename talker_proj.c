@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 	}
 
 
-	gettimeofday(&tv1, NULL);
+    gettimeofday(&tv1, NULL);
 	if ((numbytes = sendto(sockfd, argv[2], strlen(argv[2]), 0,
 			 p->ai_addr, p->ai_addrlen)) == -1) {
 		perror("talker: sendto");
@@ -155,12 +155,8 @@ int main(int argc, char *argv[])
         fwrite(buf, 1, numbytes, fp);
     }
     fclose(fp);
-	
     /*********************END RECEIVE PICTURE LOGIC*************************/
     printf("TEMPO TOTAL DE CONSULTA (CLIENTE): %ld\n", (tv1.tv_sec - tv2.tv_sec)*1000000L + tv2.tv_usec - tv1.tv_usec);
-
-
-	
     freeaddrinfo(servinfo);
 	close(sockfd);
 
