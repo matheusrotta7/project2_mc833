@@ -9,6 +9,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -39,6 +40,8 @@ int main(int argc, char *argv[])
 	char buf[MAXBUFLEN];
 	socklen_t addr_len;
     char s[INET6_ADDRSTRLEN];
+    struct timeval tv1, tv2;
+
 
 
 	if (argc != 3) {
@@ -71,6 +74,8 @@ int main(int argc, char *argv[])
 		return 2;
 	}
 
+
+    gettimeofday(&tv1, NULL);
 	if ((numbytes = sendto(sockfd, argv[2], strlen(argv[2]), 0,
 			 p->ai_addr, p->ai_addrlen)) == -1) {
 		perror("talker: sendto");
@@ -139,6 +144,9 @@ int main(int argc, char *argv[])
     		perror("recvfrom");
     		exit(1);
     	}
+        if (k == num_of_it-1) {
+            gettimeofday(&tv2, NULL);
+        }
 
         buf[numbytes] = '\0';
         printf("numbytes in iteration %d: %d\n", k, numbytes);
@@ -148,7 +156,7 @@ int main(int argc, char *argv[])
     }
     fclose(fp);
     /*********************END RECEIVE PICTURE LOGIC*************************/
-
+    printf("TEMPO TOTAL DE CONSULTA (CLIENTE): %ld\n", (tv1.tv_sec - tv2.tv_sec)*1000000L + tv2.tv_usec - tv1.tv_usec);
     freeaddrinfo(servinfo);
 	close(sockfd);
 
