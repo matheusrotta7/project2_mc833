@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	char buf[MAXBUFLEN];
 	socklen_t addr_len;
     char s[INET6_ADDRSTRLEN];
-
+    struct timeval tv1, tv2;
 
 	if (argc != 3) {
 		fprintf(stderr,"usage: talker hostname message\n");
@@ -70,6 +70,8 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "talker: failed to create socket\n");
 		return 2;
 	}
+
+	gettimeofday(&tv1, NULL);
 
 	if ((numbytes = sendto(sockfd, argv[2], strlen(argv[2]), 0,
 			 p->ai_addr, p->ai_addrlen)) == -1) {
@@ -147,7 +149,18 @@ int main(int argc, char *argv[])
         fwrite(buf, 1, numbytes, fp);
     }
     fclose(fp);
+	
     /*********************END RECEIVE PICTURE LOGIC*************************/
+
+	gettimeofday(&tv2, NULL);
+
+	double time1 = (1000*(double)tv1.tv_sec + (double)tv1.tv_usec/1000);
+	double time2 = (1000*(double)tv2.tv_sec + (double)tv2.tv_usec/1000);
+	printf("Sending time: %lf millis\n", time1);
+	printf("Reading time: %lf millis\n", time2);
+	
+	double difference = time2 - time1;
+	printf("Difference: %lf millis\n", difference);
 
     freeaddrinfo(servinfo);
 	close(sockfd);
