@@ -13,7 +13,7 @@ int main() {
     int result, listener, talker;
 
 
-    while (fscanf(fp1, "%d", &listener) != EOF && fscanf(fp2, "%d", &talker)) {
+    while (fscanf(fp1, "%d", &listener) != EOF && fscanf(fp2, "%d", &talker) != EOF) {
         cout << talker - listener << '\n';
     }
 
